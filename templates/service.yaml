@@ -1,0 +1,61 @@
+Description: flo cluster ecs service stack
+
+Parameters:
+  ServiceName:
+    Type: String
+  ServiceTag:
+    Type: String
+  ServiceRepo:
+    Type: String
+  ServicePort:
+    Type: Number
+  ServiceMemory:
+    Type: Number
+  DesiredCount:
+    Type: Number
+
+
+Resources:
+  ECSServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "ecs.amazonaws.com" ]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
+
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !ImportValue flo-cluster-name
+      Role: !Ref ECSServiceRole
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      LoadBalancers:
+        - ContainerName: !Ref ServiceName
+          ContainerPort: !Ref ServicePort
+          TargetGroupArn: !ImportValue flo-cluster-target-group
+
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${AWS::StackName}-${ServiceName}
+      ContainerDefinitions:
+        - Name: !Ref ServiceName
+          Image: !Sub ${ServiceRepo}/${ServiceName}:${ServiceTag}
+          Essential: true
+          Memory: !Ref ServiceMemory
+          PortMappings:
+            - ContainerPort: !Ref ServicePort
+          Environment:
+            - Name: Tag
+              Value: !Ref AWS::StackName
