@@ -239,16 +239,16 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 StackName: !Sub "${AWS::StackName}-Service"
                 Capabilities: CAPABILITY_NAMED_IAM
-                TemplatePath: PublishOutput::templates/service.yaml
+                TemplatePath: "AppSource::templates/service.yaml"
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
-                    ServiceName: ${Repository},
-                    ServiceRepo: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com,
-                    ServiceTag: { "Fn::GetParam" : [ "PublishOutput", "build.json", "service_tag" ] },
-                    ServicePort: ${ServicePort},
-                    ServiceMemory: ${ServiceMemory},
-                    ServiceCount: ${ServiceCount}
+                    "ServiceName": "${Repository}",
+                    "ServiceRepo": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com",
+                    "ServiceTag": { "Fn::GetParam" : [ "PublishOutput", "build.json", "service_tag" ] },
+                    "ServiceMemory": "${ServiceMemory}",
+                    "ServicePort": "${ServicePort}",
+                    "ServiceCount": "${ServiceCount}"
                   }
               InputArtifacts:
                 - Name: PublishOutput
