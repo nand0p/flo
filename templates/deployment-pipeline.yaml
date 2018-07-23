@@ -28,6 +28,8 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     DeletionPolicy: Retain
+    Properties:
+      RepositoryName: !Ref ServiceName
 
 
   CloudFormationExecutionRole:
@@ -95,7 +97,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ServiceName}
                 Effect: Allow
                 Action:
                   - ecr:GetDownloadUrlForLayer
@@ -162,20 +164,16 @@ Resources:
               commands:
                 - env
                 - "$(aws ecr get-login)"
-                - apt-get -y update
-                - apt-get -y install jq
-                - cat image.json
-                - TAG=$(cat image.json | jq -r '.tag')
-                - echo $TAG
             build:
               commands:
+                - cd app
                 - docker build --tag "${REPOSITORY_URI}:${SERVICE_TAG}" .
                 - docker images
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"tag":"%s"}' ${SERVICE_TAG} > build.json
-                - cat build.json
+                - printf '{"tag":"%s:%s"}' ${SERVICE_NAME} ${SERVICE_TAG} > ../build.json
+                - cat ../build.json
           artifacts:
             files:
               - build.json
