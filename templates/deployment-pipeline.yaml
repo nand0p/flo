@@ -174,7 +174,8 @@ Resources:
                 - cat ../build.json
           artifacts:
             files:
-              - **/*
+              - build.json
+              - templates/service.yaml
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/docker:1.12.1"  # ubuntu
