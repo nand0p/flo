@@ -1,26 +1,20 @@
 Description: flow cluster ecs deployment pipeline stack
 
 Parameters:
-  GitHubRepo:
-    Type: String
-  GitHubBranch:
-    Type: String
-  GitHubUser:
-    Type: String
-  GitHubToken:
+  ServiceToken:
     Type: String
     NoEcho: True
   ServiceName:
     Type: String
-  ServiceTag:
+  ServiceBranch:
     Type: String
-  ServiceRepo:
+  ServiceUser:
     Type: String
   ServicePort:
     Type: Number
   ServiceMemory:
     Type: Number
-  DesiredCount:
+  ServiceCount:
     Type: Number
 
 
@@ -163,6 +157,7 @@ Resources:
             pre_build:
               commands:
                 - env
+                - SERVICE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)
                 - "$(aws ecr get-login)"
             build:
               commands:
@@ -172,7 +167,7 @@ Resources:
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"tag":"%s:%s"}' ${SERVICE_NAME} ${SERVICE_TAG} > ../build.json
+                - printf '{"service_tag":"%s"}' ${SERVICE_TAG} > ../build.json
                 - cat ../build.json
           artifacts:
             files:
@@ -187,8 +182,6 @@ Resources:
             Value: !Ref AWS::Region
           - Name: REPOSITORY_URI
             Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName}
-          - Name: SERVICE_TAG
-            Value: !Ref ServiceTag
           - Name: SERVICE_NAME
             Value: !Ref ServiceName
       ServiceRole: !Ref CodeBuildServiceRole
@@ -211,10 +204,10 @@ Resources:
                 Version: 1
                 Provider: GitHub
               Configuration:
-                Owner: !Ref GitHubUser
-                Repo: !Ref GitHubRepo
-                Branch: !Ref GitHubBranch
-                OAuthToken: !Ref GitHubToken
+                Owner: !Ref ServiceUser
+                Repo: !Ref ServiceRepo
+                Branch: !Ref ServiceBranch
+                OAuthToken: !Ref ServiceToken
               OutputArtifacts:
                 - Name: Source
               RunOrder: 1
@@ -246,16 +239,15 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 StackName: !Sub "${AWS::StackName}-Service"
                 Capabilities: CAPABILITY_NAMED_IAM
-                TemplatePath: Template::templates/service.yaml
+                TemplatePath: PublishOutput::templates/service.yaml
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
-                    ServiceName: ${ServiceName},
-                    ServiceTag: ${ServiceTag},
+                    ServiceName: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName},
+                    ServiceTag: { "Fn::GetParam" : [ "PublishOutput", "build.json", "service_tag" ] },
                     ServicePort: ${ServicePort},
                     ServiceMemory: ${ServiceMemory},
-                    DesiredCount: ${DesiredCount},
-                    GitHubToken: ${GitHubToken}
+                    ServiceCount: ${ServiceCount}
                   }
               InputArtifacts:
                 - Name: PublishOutput
