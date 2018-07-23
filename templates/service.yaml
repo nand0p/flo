@@ -11,7 +11,7 @@ Parameters:
     Type: Number
   ServiceMemory:
     Type: Number
-  DesiredCount:
+  ServiceCount:
     Type: Number
 
 
@@ -37,7 +37,7 @@ Resources:
     Properties:
       Cluster: !ImportValue flo-cluster-name
       Role: !Ref ECSServiceRole
-      DesiredCount: !Ref DesiredCount
+      DesiredCount: !Ref ServiceCount
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
         - ContainerName: !Ref ServiceName

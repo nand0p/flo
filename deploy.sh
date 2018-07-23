@@ -31,7 +31,7 @@ SERVICE_PARAMETERS="\
   ServiceCount=${SERVICE_COUNT} \
   ServiceTag=${SERVICE_TAG} \
   ServiceName=${SERVICE_NAME} \
-  ServiceRepo=${SERVICE_REPO} \
+  ServiceRepo=${SERVICE_USER} \
   ServiceMemory=${SERVICE_MEMORY} \
   ServicePort=${SERVICE_PORT} \
 "
@@ -44,6 +44,7 @@ PIPELINE_PARAMETERS="\
   ServiceUser=${SERVICE_USER} \
   ServiceMemory=${SERVICE_MEMORY} \
   ServicePort=${SERVICE_PORT} \
+  ServiceRepo=${SERVICE_REPO} \
   ServiceToken=${SERVICE_TOKEN} \
 "
 

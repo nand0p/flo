@@ -8,6 +8,8 @@ Parameters:
     Type: String
   ServiceBranch:
     Type: String
+  ServiceRepo:
+    Type: String
   ServiceUser:
     Type: String
   ServicePort:
@@ -22,8 +24,6 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     DeletionPolicy: Retain
-    Properties:
-      RepositoryName: !Ref ServiceName
 
 
   CloudFormationExecutionRole:
@@ -91,7 +91,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ServiceName}
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
                 Effect: Allow
                 Action:
                   - ecr:GetDownloadUrlForLayer
@@ -167,7 +167,7 @@ Resources:
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"service_tag":"%s"}' ${SERVICE_TAG} > ../build.json
+                - printf '{"service_tag":"%s","service_name":"%s"}' ${SERVICE_TAG} ${SERVICE_NAME} > ../build.json
                 - cat ../build.json
           artifacts:
             files:
@@ -181,7 +181,7 @@ Resources:
           - Name: AWS_DEFAULT_REGION
             Value: !Ref AWS::Region
           - Name: REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName}
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
           - Name: SERVICE_NAME
             Value: !Ref ServiceName
       ServiceRole: !Ref CodeBuildServiceRole
@@ -243,7 +243,8 @@ Resources:
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
-                    ServiceName: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName},
+                    ServiceName: ${ServiceName},
+                    ServiceRepo: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository},
                     ServiceTag: { "Fn::GetParam" : [ "PublishOutput", "build.json", "service_tag" ] },
                     ServicePort: ${ServicePort},
                     ServiceMemory: ${ServiceMemory},
