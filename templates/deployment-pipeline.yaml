@@ -159,6 +159,8 @@ Resources:
               commands:
                 - env
                 - SERVICE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)
+                - echo ${SERVICE_NAME}
+                - echo ${SERVICE_TAG}
                 - "$(aws ecr get-login)"
             build:
               commands:
@@ -168,7 +170,7 @@ Resources:
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"service_tag":"%s","service_name":"%s"}' ${SERVICE_TAG} ${SERVICE_NAME} > ../build.json
+                - printf '{"service_tag":"%s"}' ${SERVICE_TAG} > ../build.json
                 - cat ../build.json
           artifacts:
             files:
