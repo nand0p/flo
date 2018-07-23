@@ -45,7 +45,7 @@ PIPELINE_PARAMETERS="\
   ServiceMemory=${SERVICE_MEMORY} \
   ServicePort=${SERVICE_PORT} \
   ServiceRepo=${SERVICE_REPO} \
-  ServiceToken=${SERVICE_TOKEN} \
+  ServiceToken=${GITHUB_TOKEN} \
 "
 
 

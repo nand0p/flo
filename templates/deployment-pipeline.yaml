@@ -206,10 +206,10 @@ Resources:
               Configuration:
                 Owner: !Ref ServiceUser
                 Repo: !Ref ServiceRepo
-                Branch: !Ref ServiceBranch
                 OAuthToken: !Ref ServiceToken
+                Branch: !Ref ServiceBranch
               OutputArtifacts:
-                - Name: Source
+                - Name: AppSource
               RunOrder: 1
         - Name: ContainerPipeine
           Actions:
@@ -222,7 +222,7 @@ Resources:
               Configuration:
                 ProjectName: !Ref ContainerPublish
               InputArtifacts:
-                - Name: Source
+                - Name: AppSource
               OutputArtifacts:
                 - Name: PublishOutput
               RunOrder: 1
@@ -243,8 +243,8 @@ Resources:
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
-                    ServiceName: ${ServiceName},
-                    ServiceRepo: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository},
+                    ServiceName: ${Repository},
+                    ServiceRepo: ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com,
                     ServiceTag: { "Fn::GetParam" : [ "PublishOutput", "build.json", "service_tag" ] },
                     ServicePort: ${ServicePort},
                     ServiceMemory: ${ServiceMemory},
