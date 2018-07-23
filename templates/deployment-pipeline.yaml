@@ -136,6 +136,7 @@ Resources:
                   - cloudformation:*
                   - iam:PassRole
 
+
   ArtifactBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
@@ -171,7 +172,7 @@ Resources:
                 - cat ../build.json
           artifacts:
             files:
-              - build.json
+              - **/*
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/docker:1.12.1"  # ubuntu
@@ -211,7 +212,7 @@ Resources:
               OutputArtifacts:
                 - Name: AppSource
               RunOrder: 1
-        - Name: ContainerPipeine
+        - Name: BuildService
           Actions:
             - Name: ContainerPublish
               ActionTypeId:
@@ -239,7 +240,7 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 StackName: !Sub "${AWS::StackName}-Service"
                 Capabilities: CAPABILITY_NAMED_IAM
-                TemplatePath: "AppSource::templates/service.yaml"
+                TemplatePath: "PublishOutput::templates/service.yaml"
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
