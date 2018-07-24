@@ -18,6 +18,16 @@ Parameters:
     Type: Number
   ServiceCount:
     Type: Number
+  ServiceStack:
+    Type: String
+  CodeBuildSize:
+    Type: String
+    Default: BUILD_GENERAL1_SMALL
+  CodeBuildImage:
+    Type: String
+    Default: aws/codebuild/docker:1.12.1  # ubuntu
+    #Default: "aws/codebuild/eb-python-3.4-amazonlinux-64:2.1.6"  # amznlinux
+
 
 
 Resources:
@@ -159,6 +169,8 @@ Resources:
                 - SERVICE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)
                 - echo ${SERVICE_NAME}
                 - echo ${SERVICE_TAG}
+                - echo ${SERVICE_STACK}
+                - echo ${REPOSITORY_URI}
                 - "$(aws ecr get-login)"
             build:
               commands:
@@ -168,16 +180,15 @@ Resources:
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"service_tag":"%s"}' ${SERVICE_TAG} > ../build.json
+                - printf '{"service_tag":"%s", "service_name":"%s","service_stack":"%s"}' ${SERVICE_TAG} ${SERVICE_NAME} ${SERVICE_STACK}> ../build.json
                 - cat ../build.json
           artifacts:
             files:
               - build.json
               - templates/service.yaml
       Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        Image: "aws/codebuild/docker:1.12.1"  # ubuntu
-        #Image: "aws/codebuild/eb-python-3.4-amazonlinux-64:2.1.6"  # amznlinux
+        ComputeType: !Ref CodeBuildSize
+        Image: !Ref CodeBuildImage
         Type: "LINUX_CONTAINER"
         EnvironmentVariables:
           - Name: AWS_DEFAULT_REGION
@@ -186,6 +197,8 @@ Resources:
             Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
           - Name: SERVICE_NAME
             Value: !Ref ServiceName
+          - Name: SERVICE_STACK
+            Value: !Ref ServiceStack
       ServiceRole: !Ref CodeBuildServiceRole
 
 
@@ -230,7 +243,7 @@ Resources:
               RunOrder: 1
         - Name: DeployService
           Actions:
-            - Name: ECScloudformation
+            - Name: !Ref ServiceStack
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
@@ -239,7 +252,7 @@ Resources:
               Configuration:
                 ChangeSetName: Deploy
                 ActionMode: CREATE_UPDATE
-                StackName: !Sub "${AWS::StackName}-service"
+                StackName: !Ref ServiceStack
                 Capabilities: CAPABILITY_NAMED_IAM
                 TemplatePath: "PublishOutput::templates/service.yaml"
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn

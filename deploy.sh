@@ -46,6 +46,7 @@ PIPELINE_PARAMETERS="\
   ServicePort=${SERVICE_PORT} \
   ServiceRepo=${SERVICE_REPO} \
   ServiceToken=${GITHUB_TOKEN} \
+  ServiceStack=${SERVICE_STACK_NAME} \
 "
 
 
