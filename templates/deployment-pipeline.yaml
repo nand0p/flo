@@ -1,4 +1,4 @@
-Description: flow cluster ecs deployment pipeline stack
+Description: flo cluster ecs deployment pipeline stack
 
 Parameters:
   ServiceToken:
@@ -180,7 +180,7 @@ Resources:
             post_build:
               commands:
                 - docker push "${REPOSITORY_URI}:${SERVICE_TAG}"
-                - printf '{"service_tag":"%s", "service_name":"%s","service_stack":"%s"}' ${SERVICE_TAG} ${SERVICE_NAME} ${SERVICE_STACK}> ../build.json
+                - printf '{"service_tag":"%s","service_name":"%s","service_stack":"%s"}' ${SERVICE_TAG} ${SERVICE_NAME} ${SERVICE_STACK}> ../build.json
                 - cat ../build.json
           artifacts:
             files:
@@ -273,3 +273,5 @@ Resources:
 Outputs:
   PipelineUrl:
     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+  ECR:
+    Value: !Ref Repository
