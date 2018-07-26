@@ -1,15 +1,8 @@
-# ECS reference architecture implementation
+# Barebones ECS reference architecture implementation for a single microservice container
 
-
-- Parameterizes environments for ease of deployment.
+- Parameterizes environments for ease of single command deployment.
 
 - Deploys CFN for VPC, ECS Cluster, Frontend ELB, ECS Service, and Codepipeline CI/CD for ECS Service.
-
-
-- TODO: Clair inline container scanning
-- TODO: move to python and pyyaml
-- TODO: `flo.yaml` is expected in service repo root, and vars available to CodeBuild Stages.
-
 
 - CI/CD Structure:
 
@@ -20,3 +13,9 @@
 3. Publishes container to ecr
 
 4. Rolls out new container to ECS
+
+
+
+- TODO: optional Clair container scanning pipeline stage
+- TODO: `.flo.yml` expected in service repo root, and vars become available to CodeBuild Stages.
+- TODO: orchestrate cfn runs with terraform, instead of awscli

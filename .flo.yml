@@ -1,0 +1,28 @@
+variables:
+  VPC_STACK_NAME: flo-cluster-vpc
+  ECS_STACK_NAME: flo-cluster-ecs
+  LB_STACK_NAME: flo-cluster-lb
+  PIPELINE_STACK_NAME: flo-cluster-pipeline
+  SERVICE_STACK_NAME: flo-cluster-service
+  VPC_TEMPLATE: templates/vpc.yaml
+  ECS_TEMPLATE: templates/ecs-cluster.yaml
+  LB_TEMPLATE: templates/load-balancer.yaml
+  PIPELINE_TEMPLATE: templates/deployment-pipeline.yaml
+  SERVICE_TEMPLATE: templates/service.yaml
+  AWS_PROFILE: default
+  AWS_REGION: us-east-1
+  KEY_NAME: flo
+  VPC_CIDR: 10.10.20.0/24
+  SUBNET_ONE_CIDR: 10.10.20.0/26
+  SUBNET_TWO_CIDR: 10.10.20.64/26
+  IMAGE_ID: ami-5253c32d  # latest ecs-optimized amzn linux
+  INSTANCE_TYPE: m3.medium
+  CLUSTER_SIZE: 3
+  SERVICE_NAME: hello-world
+  SERVICE_TAG: 1.5
+  SERVICE_USER: nand0p
+  SERVICE_REPO: flo
+  SERVICE_BRANCH: master
+  SERVICE_COUNT: 2
+  SERVICE_MEMORY: 16
+  SERVICE_PORT: 80
