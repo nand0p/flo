@@ -10,7 +10,7 @@ Parameters:
     Type: String
   ServiceRepo:
     Type: String
-  ServiceUser:
+  ServiceOwner:
     Type: String
   ServicePort:
     Type: Number
@@ -219,7 +219,7 @@ Resources:
                 Version: 1
                 Provider: GitHub
               Configuration:
-                Owner: !Ref ServiceUser
+                Owner: !Ref ServiceOwner
                 Repo: !Ref ServiceRepo
                 OAuthToken: !Ref ServiceToken
                 Branch: !Ref ServiceBranch
