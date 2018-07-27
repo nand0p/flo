@@ -59,3 +59,32 @@ Resources:
           Environment:
             - Name: Tag
               Value: !Ref AWS::StackName
+
+
+  ContainerScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 1000
+      MinCapacity: 3
+      ResourceId: !Join
+        - "/"
+        - - service
+          - !ImportValue flo-cluster-name
+          - !GetAtt [ Service, Name ]
+      RoleARN: !GetAtt [ ECSServiceRole, Arn ]
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+
+  ContainerScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-scaling-policy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ContainerScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 50.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization

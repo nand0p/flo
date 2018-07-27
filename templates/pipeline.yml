@@ -185,7 +185,7 @@ Resources:
           artifacts:
             files:
               - build.json
-              - templates/service.yaml
+              - templates/service.yml
       Environment:
         ComputeType: !Ref CodeBuildSize
         Image: !Ref CodeBuildImage
@@ -254,7 +254,7 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 StackName: !Ref ServiceStack
                 Capabilities: CAPABILITY_NAMED_IAM
-                TemplatePath: "PublishOutput::templates/service.yaml"
+                TemplatePath: "PublishOutput::templates/service.yml"
                 RoleArn: !GetAtt CloudFormationExecutionRole.Arn
                 ParameterOverrides: !Sub |
                   {
