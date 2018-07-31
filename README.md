@@ -1,20 +1,26 @@
-# Barebones ECS reference architecture implementation for a single microservice container
+# ECS reference architecture implementation from https://github.com/awslabs/ecs-refarch-continuous-deployment
+
 
 - Terraform for single command deployment `terraform apply`
 
 - Parameterized ECS environment for single container
 
-- Deploys CFN for VPC, ECS Cluster, Frontend ELB, ECS Service, and Codepipeline CI/CD for ECS Service.
+- Deploys CloudFormation for all AWS Resources:
+
+1. VPC Dependencies
+2. ECS Cluster
+3. Frontend ELB
+4. ECS Service with Application Auto-Scaling
+5. CodePipeline CI/CD Pipeline.
 
 - CI/CD Structure:
 
-1. Polls github repo with Dockerfile at root
+1. Polls github repo for Dockerfile at root
 2. Builds and tags container
-3. Publishes container to ecr
+3. Publishes container to ECR
 4. Rolls out new container to ECS
 
 
 
 - TODO: `.flo.yml` vars become available to CodeBuild Stages.
-- TODO: optional Clair container scanning pipeline stage
-- TODO: add application auto scaling for service
+- TODO: Clair container scanning pipeline stage
